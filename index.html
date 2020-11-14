@@ -20,12 +20,12 @@
     <header>
       <h1>NPS Search</h1>
     </header>
-    <div class="container">
+    <div class="form-container">
       <form id="search-form">
         <ul>
           <li>
-            <label for="search-input">State:</label>
-            <input type="text" id="search-input" name="search" required />
+            <label for="state-input">Select one or more states:</label>
+            <select name="search" id="state-input" multiple required></select>
           </li>
           <li>
             <label for="max-results">Maximum Results:</label>
@@ -44,15 +44,16 @@
           </li>
         </ul>
       </form>
-      <section id="results">
-        <h2 class="hidden">Results</h2>
+    </div>
+    <div class="results-container">
+      <section id="results" class="hidden">
         <ul id="results-list"></ul>
       </section>
-      <script
-        src="https://code.jquery.com/jquery-3.4.1.slim.js"
-        crossorigin="anonymous"
-      ></script>
-      <script src="app.js"></script>
     </div>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="app.js"></script>
   </body>
 </html>
