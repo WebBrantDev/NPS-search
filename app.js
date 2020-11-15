@@ -62,7 +62,33 @@ const states = {
   WY: "Wyoming",
 };
 
-function formatParams(params) {
+function formatParamsSingle(params) {
+  console.log("Its in single");
+  let newParams = params;
+  const userStates = params.stateCode;
+  delete newParams.stateCode;
+  let queryStates = userStates;
+  let urlArray = [];
+  const queryItems = Object.keys(params).map(
+    (key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+  );
+  queryStates = queryStates.map((key) => `stateCode=${key}`);
+  for (let i = 0; i < userStates.length; i++) {
+    // return queryItems.join("&") + "&" + queryStates[i];
+    urlArray.push(queryItems.join("&") + "&" + queryStates[i]);
+    console.log("queryStates: " + queryStates);
+    console.log("array: " + urlArray);
+    urlGenerator(urlArray[i]);
+  }
+}
+
+function urlGenerator(queryString) {
+  const url = baseURL + "?" + queryString;
+  callForResults(url);
+}
+
+function formatParamsDouble(params) {
+  console.log("Its in double");
   let newParams = params;
   const userStates = params.stateCode;
   delete newParams.stateCode;
@@ -73,7 +99,45 @@ function formatParams(params) {
     (key) => `stateCode=${encodeURIComponent(key)}`
   );
   // console.log(queryStates);
-  return queryItems.join("&") + "&" + queryStates.join("&");
+  const doubleQuery = queryItems.join("&") + "&" + queryStates.join("&");
+  urlGenerator(doubleQuery);
+}
+
+function displayResults(responseJson) {
+  let resultsReceived = 0;
+  if (parseInt(responseJson.total) <= parseInt(responseJson.limit)) {
+    resultsReceived = responseJson.total;
+  } else {
+    resultsReceived = responseJson.limit;
+  }
+
+  if (parseInt(responseJson.total) === 0) {
+    $("#results-list").empty();
+    alert("No results were found!");
+    return;
+  }
+
+  if (checkBoxListener()) {
+    $("#results-list").empty();
+  }
+
+  // $(responseJson.data[0].fullName);
+  for (let i = 0; i < resultsReceived; i++) {
+    $("#results").append();
+    $("#results-list").append(
+      `<li><div class="card">
+      <h2><a href="${responseJson.data[i].url}" target="_blank">${responseJson.data[i].fullName}</a></h2>
+      <p>${responseJson.data[i].description}</p>
+      <p>${responseJson.data[i].addresses[0].line1}
+       ${responseJson.data[i].addresses[0].line2}
+       ${responseJson.data[i].addresses[0].line3} <br>
+        ${responseJson.data[i].addresses[0].city}, ${responseJson.data[i].addresses[0].stateCode} ${responseJson.data[i].addresses[0].postalCode}<p>
+      <img src="${responseJson.data[i].images[0].url}"></div><li>`
+    );
+  }
+  console.log(responseJson);
+
+  $("#results").removeClass("hidden");
 }
 
 function getResults(userState, maxResults) {
@@ -83,38 +147,21 @@ function getResults(userState, maxResults) {
     stateCode: userState,
   };
 
-  function displayResults(responseJson) {
-    let resultsReceived = 0;
-    if (parseInt(responseJson.total) <= parseInt(responseJson.limit)) {
-      resultsReceived = responseJson.total;
-    } else {
-      resultsReceived = responseJson.limit;
-    }
-
-    if (parseInt(responseJson.total) === 0) {
-      $("#results-list").empty();
-      alert("No results were found!");
-      return;
-    }
-
-    $("#results-list").empty();
-    // $(responseJson.data[0].fullName);
-    for (let i = 0; i < resultsReceived; i++) {
-      $("#results-list").append(
-        `<li><div class="card"><h2>${responseJson.data[i].fullName}</h2>
-        <p>${responseJson.data[i].description}</p>
-        <a href="${responseJson.data[i].url}" target="_blank">${responseJson.data[i].fullName} Website</a><br>
-        <img src="${responseJson.data[i].images[0].url}"></div><li>`
-      );
-    }
-    console.log(responseJson);
-
-    $("#results").removeClass("hidden");
+  console.log("User State: " + userState);
+  console.log("checkbox state: " + checkBoxListener());
+  if (!checkBoxListener()) {
+    formatParamsSingle(params);
+  } else if (checkBoxListener() && userState.length > 1) {
+    console.log("checkbox state inside: " + checkBoxListener());
+    formatParamsDouble(params);
+  } else if (checkBoxListener() && userState.length < 2) {
+    alert("Please select multiple states.");
+    return;
   }
+  // callForResults(url);
+}
 
-  const queryString = formatParams(params);
-  const url = baseURL + "?" + queryString;
-
+function callForResults(url) {
   fetch(url)
     .then((response) => {
       if (response.ok) {
@@ -137,9 +184,16 @@ function formListener() {
     const userState = $("#state-input").val();
     const maxResults = $("#max-results").val();
     // console.log(userState, maxResults);
+    checkBoxListener();
     getResults(userState, maxResults);
     $("#state-input").val("");
+    $("#results-list").empty();
   });
+}
+
+function checkBoxListener() {
+  // console.log($("#checkDouble").prop("checked"));
+  return $("#checkDouble").prop("checked");
 }
 
 // Generates the list of states after the page loads so it doesn't fill up my html doc

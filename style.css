@@ -42,7 +42,8 @@ a:hover {
 
 img {
   height: auto;
-  width: 100%;
+  max-height: 250px;
+  width: auto;
   max-width: 250px;
   margin-top: 20px;
   border-radius: 8px;
@@ -66,7 +67,7 @@ img {
   padding: 10px;
   text-align: center;
   width: 600px;
-  height: 500px;
+  height: 550px;
   margin: 20px 40px;
   flex: 1;
 }
