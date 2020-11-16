@@ -115,6 +115,7 @@ function displayResults(responseJson) {
 
   if (parseInt(responseJson.total) === 0) {
     $("#results-list").empty();
+    $("h2").addClass("hidden");
     alert("No results were found!");
     return;
   }
@@ -124,7 +125,6 @@ function displayResults(responseJson) {
   }
 
   for (let i = 0; i < resultsReceived; i++) {
-    $("#results").append();
     $("#results-list").append(
       `<li><div class="card">
       <h2><a href="${responseJson.data[i].url}" target="_blank">${responseJson.data[i].fullName}</a></h2>
@@ -138,6 +138,7 @@ function displayResults(responseJson) {
   }
 
   $("#results").removeClass("hidden");
+  $("h2").removeClass("hidden");
 }
 // *********************************************************************************************************************************************************
 

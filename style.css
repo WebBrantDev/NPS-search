@@ -13,6 +13,10 @@ h1 {
   padding-left: 40px;
 }
 
+h2 {
+  text-align: center;
+}
+
 img {
   height: auto;
   max-height: 250px;
