@@ -1,3 +1,4 @@
+// Constants *********************************************************************
 const apiKey = "SWOQ1FTkxNZUk5FtYfx7fV1il82AC2Yfi4ywhyqE";
 const baseURL = "https://developer.nps.gov/api/v1/parks";
 const states = {
@@ -61,9 +62,11 @@ const states = {
   WI: "Wisconsin",
   WY: "Wyoming",
 };
+// ****************************************************************************************************
 
+// Params formatters for individual state searches and combined state searches ************************
+// Formats the url and calls the fetch for each state submitted individually
 function formatParamsSingle(params) {
-  console.log("Its in single");
   let newParams = params;
   const userStates = params.stateCode;
   delete newParams.stateCode;
@@ -74,21 +77,12 @@ function formatParamsSingle(params) {
   );
   queryStates = queryStates.map((key) => `stateCode=${key}`);
   for (let i = 0; i < userStates.length; i++) {
-    // return queryItems.join("&") + "&" + queryStates[i];
     urlArray.push(queryItems.join("&") + "&" + queryStates[i]);
-    console.log("queryStates: " + queryStates);
-    console.log("array: " + urlArray);
     urlGenerator(urlArray[i]);
   }
 }
-
-function urlGenerator(queryString) {
-  const url = baseURL + "?" + queryString;
-  callForResults(url);
-}
-
+// Formats the url and calls the fetch for parks that belong in multiple states
 function formatParamsDouble(params) {
-  console.log("Its in double");
   let newParams = params;
   const userStates = params.stateCode;
   delete newParams.stateCode;
@@ -98,11 +92,19 @@ function formatParamsDouble(params) {
   const queryStates = userStates.map(
     (key) => `stateCode=${encodeURIComponent(key)}`
   );
-  // console.log(queryStates);
   const doubleQuery = queryItems.join("&") + "&" + queryStates.join("&");
   urlGenerator(doubleQuery);
 }
+// ***************************************************************************************************
 
+// Generates the final serach string to be fetched ***************************************************
+function urlGenerator(queryString) {
+  const url = baseURL + "?" + queryString;
+  callForResults(url);
+}
+// ***************************************************************************************************
+
+// Final function used to display results to the DOM ***************************************************
 function displayResults(responseJson) {
   let resultsReceived = 0;
   if (parseInt(responseJson.total) <= parseInt(responseJson.limit)) {
@@ -121,7 +123,6 @@ function displayResults(responseJson) {
     $("#results-list").empty();
   }
 
-  // $(responseJson.data[0].fullName);
   for (let i = 0; i < resultsReceived; i++) {
     $("#results").append();
     $("#results-list").append(
@@ -135,11 +136,12 @@ function displayResults(responseJson) {
       <img src="${responseJson.data[i].images[0].url}"></div><li>`
     );
   }
-  console.log(responseJson);
 
   $("#results").removeClass("hidden");
 }
+// *********************************************************************************************************************************************************
 
+// Formats the params and calls the correct function based on the amount of states and if the checkbox is checked ***************************************
 function getResults(userState, maxResults) {
   const params = {
     api_key: apiKey,
@@ -147,8 +149,6 @@ function getResults(userState, maxResults) {
     stateCode: userState,
   };
 
-  console.log("User State: " + userState);
-  console.log("checkbox state: " + checkBoxListener());
   if (!checkBoxListener()) {
     formatParamsSingle(params);
   } else if (checkBoxListener() && userState.length > 1) {
@@ -158,9 +158,10 @@ function getResults(userState, maxResults) {
     alert("Please select multiple states.");
     return;
   }
-  // callForResults(url);
 }
+// ******************************************************************************************************************************
 
+// Fetch function that makes the API call and the calls displayResults with the returnd JSON object ********
 function callForResults(url) {
   fetch(url)
     .then((response) => {
@@ -173,17 +174,15 @@ function callForResults(url) {
     .catch((err) => {
       console.log(err);
     });
-  console.log(url);
 }
+// ******************************************************************************************************************
 
-// console.log(params);
-
+// Event listeners for submit button and checkbox button *****************************************
 function formListener() {
   $("#search-form").submit((event) => {
     event.preventDefault();
     const userState = $("#state-input").val();
     const maxResults = $("#max-results").val();
-    // console.log(userState, maxResults);
     checkBoxListener();
     getResults(userState, maxResults);
     $("#state-input").val("");
@@ -191,12 +190,13 @@ function formListener() {
   });
 }
 
+// Returns boolean if the checkbox is checked
 function checkBoxListener() {
-  // console.log($("#checkDouble").prop("checked"));
   return $("#checkDouble").prop("checked");
 }
+// ***********************************************************************************************
 
-// Generates the list of states after the page loads so it doesn't fill up my html doc
+// Generates the list of states after the page loads so it doesn't fill up my html doc *************
 function generateStateList() {
   let keys = Object.keys(states);
   for (let i = 0; i < keys.length; i++) {
@@ -206,9 +206,11 @@ function generateStateList() {
   }
 }
 
+// Handler function **********************************************************************************
 function handler() {
   formListener();
   generateStateList();
 }
 
+// Calls handler function after the page loads ***********************************************************
 $(handler);
